@@ -160,8 +160,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
     if os.path.exists("./gencorrelation_k%s.txt"%(args.k)):
         print("importing gencorr matrix..\n")
-        tmp_list = [0]*numWinds
-        for i in range(numWinds):
+        tmp_list = [0]*int(args.windows)
+        for i in range(int(args.windows)):
             tmp_list[i] = np.loadtxt("./gencorrelation_k%s.txt"%(args.k))
         gencorr = np.array(tmp_list)
     else:
