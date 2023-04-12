@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 # Calculate generalized correlation in MD trajectory
 #
 # Author: Jiahao Fan
@@ -7,7 +5,6 @@
 
 # Load the python package
 import os
-from turtle import color
 from dynetan.toolkit import *
 from dynetan.viz import *
 from dynetan.proctraj import *
@@ -15,9 +12,8 @@ from dynetan.gencor import *
 from dynetan.contact import *
 import numpy as np
 from matplotlib import pyplot as plt
-import MDAnalysis as mda
 from datetime import datetime
-import argparse, math, matplotlib
+import argparse
 
 def format_seconds(seconds):
     m, s = divmod(seconds, 60)
