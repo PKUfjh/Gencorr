@@ -24,14 +24,13 @@ def format_seconds(seconds):
     h, m = divmod(m, 60)
     return "%d:%02d:%02d" % (h, m, s)
 
-# Number of windows created from full simulation.
-numWinds = 1
-# Cutoff for contact map (In Angstroms)
-cutoffDist = 100
-kNeighb = 7
-duration = 200
-
-def DNAcorr(input_dir, trajectory, topology):    
+def DNAcorr(input_dir, trajectory, topology, cutoff, kneighb, windows, ncores): 
+    # Number of windows created from full simulation.
+    numWinds = int(windows) 
+    # Cutoff for contact map (In Angstroms)
+    cutoffDist = int(cutoff)
+    # K neighbor number
+    kNeighb = int(kneighb)
     # Create the object that processes MD trajectories.
     dnap = DNAproc()
 
@@ -120,7 +119,7 @@ def DNAcorr(input_dir, trajectory, topology):
     # We can calculate generalized correlaions in parallel using Python's multiprocessing package.
     start = datetime.now()
     print("Started at: %s\n" % str(start))
-    dnap.calcCor(ncores=2)
+    dnap.calcCor(ncores=ncores)
     end = datetime.now()
     time_taken = format_seconds((end - start).seconds)
     print("- Total time: %s\n" % str(time_taken))
@@ -130,13 +129,13 @@ def DNAcorr(input_dir, trajectory, topology):
     print("corr matrix shape",np.shape(dnap.corrMatAll))
     return dnap.corrMatAll
 
-def plot_heatmap(correlation, input_dir):
+def plot_heatmap(correlation, input_dir, windows):
     output_dir = input_dir+"/gencorr"
     if not os.path.exists(output_dir):
         os.mkdir(output_dir)
 
     fig, ax = plt.subplots()
-    for i in range(numWinds):
+    for i in range(windows):
         plt.figure(3)
         plt.imshow(correlation[i])
         if i == 0:
@@ -152,18 +151,23 @@ if __name__ == "__main__":
     #custom arguments
     parser.add_argument("--trajectory", help="Trajectory file")
     parser.add_argument("--topology", help="Referencce PDB file (must contain the same number of atoms as the trajectory)")
+    parser.add_argument("--cutoff", default = 100, help="cutoff for determining contact matrix")
+    parser.add_argument("--k", default = 7, help="cutoff for determining contact matrix")
+    parser.add_argument("--windows", default = 1, help="number of windows to calculate the corr matrix")
+    parser.add_argument("--ncores", default = 2, help="number of cores for parallel computation")
+    
 
     args = parser.parse_args()
-    if os.path.exists("./gencorrelation_k%s.txt"%(kNeighb)):
+    if os.path.exists("./gencorrelation_k%s.txt"%(args.k)):
         print("importing gencorr matrix..\n")
         tmp_list = [0]*numWinds
         for i in range(numWinds):
-            tmp_list[i] = np.loadtxt("./gencorrelation_k%s.txt"%(kNeighb))
+            tmp_list[i] = np.loadtxt("./gencorrelation_k%s.txt"%(args.k))
         gencorr = np.array(tmp_list)
     else:
         print("calculating gencorr...")
-        gencorr = DNAcorr(args.input, args.trajectory, args.topology)
+        gencorr = DNAcorr(args.input, args.trajectory, args.topology, args.cutoff, args.k, args.windows, args.ncores)
         
-    plot_heatmap(gencorr, args.input)
+    plot_heatmap(gencorr, args.input, args.windows)
     
     
