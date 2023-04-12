@@ -135,7 +135,7 @@ def plot_heatmap(correlation, input_dir, windows):
         os.mkdir(output_dir)
 
     fig, ax = plt.subplots()
-    for i in range(windows):
+    for i in range(int(windows)):
         plt.figure(3)
         plt.imshow(correlation[i])
         if i == 0:

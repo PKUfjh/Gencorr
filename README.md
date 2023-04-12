@@ -23,6 +23,6 @@ And the correlation matrix
 ```
 gencorrelation_k7.txt ./gencorr/gencorr_window1.png
 ```
-The theory behind the generalized matrix can be found in Phys. Rev. E 69, 066138. There is a hyperparameter "k" in the algorithm, which defaultly is set to 7. You can change this hyperparameter by "--k". Another parameter is the number of windows, which defaultly is set to 1, meaning we use the whole trajectory to calculate the correlation matrix, you can set it to be larger than 1, meaning that the trajectory is split into several parts to calculate the corr matrix separately.
+The theory behind the generalized matrix can be found in Phys. Rev. E 69, 066138. There is a hyperparameter "k" in the algorithm, which defaultly is set to 7. You can change this hyperparameter by "--k". Another parameter is the number of windows, which defaultly is set to 1, meaning we use the whole trajectory to calculate the correlation matrix, you can set it to be larger than 1 by "--windows", meaning that the trajectory is split into several parts to calculate the corr matrix separately.
 
 Another parameter you can set is "--ncores", which is the number of cores for parallel computation, but you should test this parameter in practive since not always faster with more cores.
