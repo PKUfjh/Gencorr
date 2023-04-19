@@ -20,7 +20,7 @@ def format_seconds(seconds):
     h, m = divmod(m, 60)
     return "%d:%02d:%02d" % (h, m, s)
 
-def DNAcorr(input_dir, trajectory, topology, cutoff, kneighb, windows, ncores): 
+def DNAcorr(input_dir, trajectory, topology, segids, cutoff, kneighb, windows, ncores): 
     # Number of windows created from full simulation.
     numWinds = int(windows) 
     # Cutoff for contact map (In Angstroms)
@@ -43,7 +43,7 @@ def DNAcorr(input_dir, trajectory, topology, cutoff, kneighb, windows, ncores):
     # ligandSegID = "OMP"
 
     # Segment IDs for regions that will be studied.
-    segIDs = ["SYSTEM"]
+    segIDs = [segids]
 
     # Residue name for solvent molecule(s)
     h2oName = ["SOL"]
@@ -147,6 +147,7 @@ if __name__ == "__main__":
     #custom arguments
     parser.add_argument("--trajectory", help="Trajectory file")
     parser.add_argument("--topology", help="Referencce PDB file (must contain the same number of atoms as the trajectory)")
+    parser.add_argument("--segids", default = "SYSTEM", help="segment ID in pdb file")
     parser.add_argument("--cutoff", default = 100, help="cutoff for determining contact matrix")
     parser.add_argument("--k", default = 7, help="cutoff for determining contact matrix")
     parser.add_argument("--windows", default = 1, help="number of windows to calculate the corr matrix")
@@ -162,7 +163,7 @@ if __name__ == "__main__":
         gencorr = np.array(tmp_list)
     else:
         print("calculating gencorr...")
-        gencorr = DNAcorr(args.input, args.trajectory, args.topology, args.cutoff, args.k, args.windows, args.ncores)
+        gencorr = DNAcorr(args.input, args.trajectory, args.topology, args.segids, args.cutoff, args.k, args.windows, args.ncores)
         
     plot_heatmap(gencorr, args.input, args.windows)
     

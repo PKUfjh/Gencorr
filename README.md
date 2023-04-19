@@ -12,6 +12,8 @@ python ../analysis_simple.py --trajectory traj_aligned.xtc --topology final.pdb
 # Usage
 In your own usage, you should provide a trajectory (.xtc et al.) and a topology file (.pdb et al.) with the same number of atoms, typically we only want to keep the protein in the trajectory files, so the topology file should also include only the protein. There may be some unexpected error if you include solvent information in the trajectory file. 
 
+Note that if your topology file (.pdb et al.) contains segment IDs, you should specify the segment IDs by setting "--segids". The default settings of "--segids" is "SYSTEM", which works when .pdb file does not contain segment ID information.
+
 # Result
 After executing the code, you will get the contact matrix
 ```
