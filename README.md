@@ -1,6 +1,8 @@
 # Install
 ```
 pip install dynetan==1.2.0
+pip install ipywidgets
+pip install numpy==1.23.5
 ```
 
 # Example

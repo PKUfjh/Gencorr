@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # Calculate generalized correlation in MD trajectory
 #
 # Author: Jiahao Fan
@@ -20,7 +21,7 @@ def format_seconds(seconds):
     h, m = divmod(m, 60)
     return "%d:%02d:%02d" % (h, m, s)
 
-def DNAcorr(input_dir, trajectory, topology, segids, cutoff, kneighb, windows, ncores): 
+def DNAcorr(input_dir, output_dir, trajectory, topology, segids, cutoff, kneighb, windows, ncores): 
     # Number of windows created from full simulation.
     numWinds = int(windows) 
     # Cutoff for contact map (In Angstroms)
@@ -43,7 +44,8 @@ def DNAcorr(input_dir, trajectory, topology, segids, cutoff, kneighb, windows, n
     # ligandSegID = "OMP"
 
     # Segment IDs for regions that will be studied.
-    segIDs = [segids]
+    print("input segID argument!!!", segids)
+    segIDs = segids
 
     # Residue name for solvent molecule(s)
     h2oName = ["SOL"]
@@ -90,7 +92,7 @@ def DNAcorr(input_dir, trajectory, topology, segids, cutoff, kneighb, windows, n
 
     dnap.checkSystem()
 
-    dnap.selectSystem(withSolvent=True)
+    dnap.selectSystem(withSolvent=False)
 
     dnap.prepareNetwork()
 
@@ -102,7 +104,7 @@ def DNAcorr(input_dir, trajectory, topology, segids, cutoff, kneighb, windows, n
 
     dnap.filterContacts(notSameRes=True, notConsecutiveRes=False, removeIsolatedNodes=True, verbose=0)
 
-    output_dir = input_dir
+    # output_dir = input_dir
     if not os.path.exists(output_dir):
         os.mkdir(output_dir)
     print(dnap.contactMatAll[0, :, :])
@@ -119,14 +121,14 @@ def DNAcorr(input_dir, trajectory, topology, segids, cutoff, kneighb, windows, n
     end = datetime.now()
     time_taken = format_seconds((end - start).seconds)
     print("- Total time: %s\n" % str(time_taken))
-    with open('gencorrelation_k%s.txt'%(kNeighb), "w") as f:
+    with open(output_dir+'/gencorrelation_k%s.txt'%(kNeighb), "w") as f:
         np.savetxt(f, dnap.corrMatAll[0], fmt='%1.15f')
     
     print("corr matrix shape",np.shape(dnap.corrMatAll))
     return dnap.corrMatAll
 
-def plot_heatmap(correlation, input_dir, windows):
-    output_dir = input_dir+"/gencorr"
+def plot_heatmap(correlation, input_dir, output_dir, windows):
+    # output_dir = input_dir+"/gencorr"
     if not os.path.exists(output_dir):
         os.mkdir(output_dir)
 
@@ -144,10 +146,11 @@ if __name__ == "__main__":
     #parse cmd arguments
     parser = argparse.ArgumentParser()
     parser.add_argument("--input", help="Input directory", default="./")
+    parser.add_argument("--output", help="Output directory", default="./")
     #custom arguments
     parser.add_argument("--trajectory", help="Trajectory file")
     parser.add_argument("--topology", help="Referencce PDB file (must contain the same number of atoms as the trajectory)")
-    parser.add_argument("--segids", default = "SYSTEM", help="segment ID in pdb file")
+    parser.add_argument("--segids", nargs='*', default = "SYSTEM", help="segment ID in pdb file")
     parser.add_argument("--cutoff", default = 100, help="cutoff for determining contact matrix")
     parser.add_argument("--k", default = 7, help="cutoff for determining contact matrix")
     parser.add_argument("--windows", default = 1, help="number of windows to calculate the corr matrix")
@@ -155,16 +158,16 @@ if __name__ == "__main__":
     
 
     args = parser.parse_args()
-    if os.path.exists("./gencorrelation_k%s.txt"%(args.k)):
+    if os.path.exists(os.path.join(args.output, "gencorrelation_k%s.txt"%(args.k))):
         print("importing gencorr matrix..\n")
         tmp_list = [0]*int(args.windows)
         for i in range(int(args.windows)):
-            tmp_list[i] = np.loadtxt("./gencorrelation_k%s.txt"%(args.k))
+            tmp_list[i] = np.loadtxt(os.path.join(args.output, "gencorrelation_k%s.txt"%(args.k)))
         gencorr = np.array(tmp_list)
     else:
         print("calculating gencorr...")
-        gencorr = DNAcorr(args.input, args.trajectory, args.topology, args.segids, args.cutoff, args.k, args.windows, args.ncores)
+        gencorr = DNAcorr(args.input, args.output, args.trajectory, args.topology, args.segids, args.cutoff, args.k, args.windows, args.ncores)
         
-    plot_heatmap(gencorr, args.input, args.windows)
+    plot_heatmap(gencorr, args.input, args.output, args.windows)
     
     
