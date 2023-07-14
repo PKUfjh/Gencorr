@@ -117,12 +117,13 @@ def DNAcorr(input_dir, output_dir, trajectory, topology, segids, cutoff, kneighb
     # We can calculate generalized correlaions in parallel using Python's multiprocessing package.
     start = datetime.now()
     print("Started at: %s\n" % str(start))
-    dnap.calcCor(ncores=ncores)
+    dnap.calcCor(ncores=int(ncores))
     end = datetime.now()
     time_taken = format_seconds((end - start).seconds)
     print("- Total time: %s\n" % str(time_taken))
-    with open(output_dir+'/gencorrelation_k%s.txt'%(kNeighb), "w") as f:
-        np.savetxt(f, dnap.corrMatAll[0], fmt='%1.15f')
+    for wind_index in range(numWinds):
+        with open(output_dir+'/gencorrelation_k%s_window%s.txt'%(kNeighb, wind_index), "w") as f:
+            np.savetxt(f, dnap.corrMatAll[wind_index], fmt='%1.15f')
     
     print("corr matrix shape",np.shape(dnap.corrMatAll))
     return dnap.corrMatAll
@@ -135,6 +136,8 @@ def plot_heatmap(correlation, input_dir, output_dir, windows):
     fig, ax = plt.subplots()
     for i in range(int(windows)):
         plt.figure(3)
+        plt.xlim(0,correlation[i].shape[0])
+        plt.ylim(0,correlation[i].shape[0])
         plt.imshow(correlation[i])
         if i == 0:
             plt.colorbar()
@@ -158,11 +161,11 @@ if __name__ == "__main__":
     
 
     args = parser.parse_args()
-    if os.path.exists(os.path.join(args.output, "gencorrelation_k%s.txt"%(args.k))):
+    if os.path.exists(os.path.join(args.output, "gencorrelation_k%s_window0.txt"%(args.k))):
         print("importing gencorr matrix..\n")
         tmp_list = [0]*int(args.windows)
-        for i in range(int(args.windows)):
-            tmp_list[i] = np.loadtxt(os.path.join(args.output, "gencorrelation_k%s.txt"%(args.k)))
+        for wind_index in range(int(args.windows)):
+            tmp_list[wind_index] = np.loadtxt(os.path.join(args.output, "gencorrelation_k%s_window%s.txt"%(args.k, wind_index)))
         gencorr = np.array(tmp_list)
     else:
         print("calculating gencorr...")
