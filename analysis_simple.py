@@ -84,8 +84,8 @@ def DNAcorr(input_dir, output_dir, trajectory, topology, segids, cutoff, kneighb
     dnap.setSegIDs(segIDs)
     dnap.kNeighb = kNeighb
 
-    dnap.setCustomResNodes(customResNodes)
-    dnap.setUsrNodeGroups(usrNodeGroups)
+    dnap.setNodeGroups(customResNodes)
+    dnap.setNodeGroups(usrNodeGroups)
 
     #load the trajectory
     dnap.loadSystem(top_file,traj_file)
@@ -153,7 +153,7 @@ if __name__ == "__main__":
     #custom arguments
     parser.add_argument("--trajectory", help="Trajectory file")
     parser.add_argument("--topology", help="Referencce PDB file (must contain the same number of atoms as the trajectory)")
-    parser.add_argument("--segids", nargs='*', default = "SYSTEM", help="segment ID in pdb file")
+    parser.add_argument("--segids", nargs='*', default = ["SYSTEM"], help="segment ID in pdb file")
     parser.add_argument("--cutoff", default = 100, help="cutoff for determining contact matrix")
     parser.add_argument("--k", default = 7, help="cutoff for determining contact matrix")
     parser.add_argument("--windows", default = 1, help="number of windows to calculate the corr matrix")
